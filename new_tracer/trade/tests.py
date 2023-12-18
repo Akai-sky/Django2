@@ -151,3 +151,9 @@ def more_than_half(items):
     return temps
 
 from copy import deepcopy, copy
+
+
+tes = True
+
+asd = not tes
+print(asd)

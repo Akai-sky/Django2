@@ -1,13 +1,12 @@
-from django.shortcuts import render
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import mixins, viewsets, authentication
-# Create your views here.
-from .serializers import ProjectSerializer, ProjectUserSerializer, ProjectUserCreateSerializer, ProjectStarSerializer
+from .serializers import ProjectSerializer, ProjectUserSerializer, ProjectUserCreateSerializer, ProjectStarSerializer, \
+    ProjectUserStarSerializer
 from .models import Project, ProjectUser
-
+from drf_multiple_model.viewsets import FlatMultipleModelAPIViewSet, ObjectMultipleModelAPIViewSet
 from .filters import ProjectsFilter
 from django.contrib.auth import get_user_model
 
@@ -39,6 +38,7 @@ class ProjectUserViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.
     permission_classes = (IsAuthenticated,)
     authentication_classes = (authentication.SessionAuthentication,)
     filterset_fields = ('star',)
+    lookup_field = 'project_id'
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -58,18 +58,32 @@ class ProjectStarViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin,
     permission_classes = (IsAuthenticated,)
     serializer_class = ProjectStarSerializer
     lookup_field = "id"
-    # def update(self, request, *args, **kwargs):
-    #     # star = request.data["name"]
-    #     partial = kwargs.pop('partial', False)
-    #
-    #     print("star",request.data)
-    #     instance = self.get_object()
-    #
-    #     serializer = self.get_serializer(instance, data=request.data, partial=partial)
-    #
-    #     # request.data["star"] = star
-    #     # return super().update(request, *args, **kwargs)
-    #     return Response(serializer.data)
 
     def get_queryset(self):
         return Project.objects.filter(creator=self.request.user)
+
+
+class ProjectUserStarViewSet(mixins.ListModelMixin, mixins.UpdateModelMixin,
+                             viewsets.GenericViewSet):
+    "参与的项目收藏"
+    queryset = ProjectUser.objects.all()
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ProjectUserStarSerializer
+    lookup_field = 'project_id'
+
+    def get_queryset(self):
+        return ProjectUser.objects.filter(user=self.request.user)
+
+
+class AllProjectViewSet(ObjectMultipleModelAPIViewSet):
+    "所有涉及项目"
+
+    def get_querylist(self):
+        queryset = [
+            {'queryset': Project.objects.filter(creator=self.request.user),
+             'serializer_class': ProjectSerializer},
+            {'queryset': ProjectUser.objects.filter(user=self.request.user),
+             'serializer_class': ProjectUserSerializer, 'lookup_field': 'project_id'},
+        ]
+
+        return queryset

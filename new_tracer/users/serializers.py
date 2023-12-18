@@ -1,8 +1,6 @@
 import uuid
-
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
-from django.db.models import Q
 from django.contrib.auth import get_user_model
 
 from .models import VerifyCode

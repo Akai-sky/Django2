@@ -38,7 +38,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ("name", "color", "desc", "creator")
+        fields = ("id", "name", "color", "desc", "creator")
 
 
 class ProjectUserSerializer(serializers.ModelSerializer):
@@ -65,12 +65,27 @@ class ProjectStarSerializer(serializers.ModelSerializer):
     )
     def update(self, instance, validated_data):
         pro_obj = Project.objects.filter(id=instance.id).first()
-
+        instance.star = not pro_obj.star
+        instance.save()
+        return instance
     class Meta:
         model = Project
         fields = ("creator",)
 
 class ProjectUserStarSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(
+        default=serializers.CurrentUserDefault()
+    )
+
+    def update(self, instance, validated_data):
+        print('-----')
+        print(instance.project_id)
+        print(instance.id)
+        pro_obj = ProjectUser.objects.filter(id=instance.id).first()
+        instance.star = not pro_obj.star
+        instance.save()
+        return instance
+
     class Meta:
         model = ProjectUser
-        fields = "star"
+        fields = ("user",)
