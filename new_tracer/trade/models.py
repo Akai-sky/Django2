@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-# Create your models here.
 class PricePolicy(models.Model):
     """ 价格策略 """
     category_choices = (
@@ -21,6 +20,10 @@ class PricePolicy(models.Model):
     per_file_size = models.PositiveIntegerField(verbose_name='单文件大小', help_text="M")
 
     create_datetime = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+
+    class Meta:
+        verbose_name = "价格策略"
+        verbose_name_plural = verbose_name
 
 
 class Transaction(models.Model):
@@ -40,3 +43,7 @@ class Transaction(models.Model):
     start_datetime = models.DateTimeField(verbose_name='开始时间', null=True, blank=True)
     end_datetime = models.DateTimeField(verbose_name='结束时间', null=True, blank=True)
     create_datetime = models.DateTimeField(verbose_name='创建时间', auto_now_add=True)
+
+    class Meta:
+        verbose_name = "交易记录"
+        verbose_name_plural = verbose_name

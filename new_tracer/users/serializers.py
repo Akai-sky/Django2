@@ -55,8 +55,7 @@ class UserRegSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user = User.objects.create(**validated_data)
-        print("user",user)
-        print(user.id)
+
         policy_object = PricePolicy.objects.filter(category=1,title="Free").first()
         Transaction.objects.create(
             status=2,

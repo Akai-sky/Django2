@@ -17,6 +17,10 @@ import datetime
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = "/media/"
+UPLOAD_PATH = "upload/"
+STATIC_URL = "static/"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -44,8 +48,10 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'captcha',
     'project.apps.ProjectConfig',
+    'Issues.apps.IssuesConfig',
     'wiki.apps.WikiConfig',
     'trade.apps.TradeConfig',
+    'file.apps.FileConfig',
     'django_filters',
     'corsheaders',
     'drf_multiple_model',
@@ -60,7 +66,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'middleware.auth.AuthMiddleware',
+    # 'middleware.auth.AuthMiddleware',
 ]
 CORS_ORIGIN_ALLOW_ALL = True
 ROOT_URLCONF = 'new_tracer.urls'
@@ -138,7 +144,6 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -152,6 +157,17 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication'
     ),
     # 'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.AutoSchema'
+    'DEFAULT_FILTER_BACKENDS': [
+        'rest_framework.filters.SearchFilter',
+        # 排序引擎（OrderingFilter为排序引擎类）
+        'rest_framework.filters.OrderingFilter',
+    ],
+    # 指定分页引擎
+    #     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'utils.pagination.PageNumberPagination',
+    # 指定每页条数
+    'PAGE_SIZE': 4,
+
 }
 
 JWT_AUTH = {
@@ -162,7 +178,6 @@ JWT_AUTH = {
 AUTHENTICATION_BACKENDS = (
     'users.views.CustomBackend',
 )
-
 
 # ########### 登录白名单：无需登录就可以访问的页面 ###########
 WHITE_REGEX_URL_LIST = [

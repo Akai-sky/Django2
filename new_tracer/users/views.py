@@ -9,10 +9,9 @@ from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from .serializers import UserRegSerializer, UserDetailSerializer
 from django.contrib.auth.backends import ModelBackend
 from django.db.models import Q
-from utils.image_code import ImageView
 
-# Create your views here.
 User = get_user_model()
+
 
 class CustomBackend(ModelBackend):
     """
@@ -21,18 +20,14 @@ class CustomBackend(ModelBackend):
 
     def authenticate(self, request, username=None, password=None, **kwargs):
         try:
-            print(username)
-            print(password)
             user = User.objects.get(Q(username=username) | Q(mobile=username))
-            print(user)
 
             if user.check_password(password):
                 request.session['user_id'] = user.id
-                print(request.session['user_id'])
-
                 return user
         except Exception as e:
             return None
+
 
 class UserViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     """
@@ -42,7 +37,6 @@ class UserViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Upd
     queryset = User.objects.all()
     authentication_classes = (JSONWebTokenAuthentication, authentication.SessionAuthentication)
 
-    # permission_classes = (permissions.IsAuthenticated,)
     def get_serializer_class(self):
         if self.action == "retrieve":
             return UserDetailSerializer
@@ -70,12 +64,10 @@ class UserViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Upd
         headers = self.get_success_headers(serializer.data)
         return Response(re_dict, status=status.HTTP_201_CREATED, headers=headers)
 
-
     def get_object(self):
         return self.request.user
 
     def perform_create(self, serializer):
         user = serializer.save()
-
 
         return user

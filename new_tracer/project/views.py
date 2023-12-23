@@ -1,23 +1,21 @@
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import mixins, viewsets, authentication
 from .serializers import ProjectSerializer, ProjectUserSerializer, ProjectUserCreateSerializer, ProjectStarSerializer, \
     ProjectUserStarSerializer
 from .models import Project, ProjectUser
-from drf_multiple_model.viewsets import FlatMultipleModelAPIViewSet, ObjectMultipleModelAPIViewSet
-from .filters import ProjectsFilter
-from django.contrib.auth import get_user_model
+from drf_multiple_model.viewsets import ObjectMultipleModelAPIViewSet
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [DjangoFilterBackend,filters.OrderingFilter]
     filterset_fields = ('star',)
-    # filterset_class = ProjectsFilter
+    ordering_fields = ['id']
     permission_classes = (IsAuthenticated,)
-    # permission_classes = (IsAuthenticated, IsOwnerOrReadOnly,)
     authentication_classes = (authentication.SessionAuthentication,)
 
     def create(self, request, *args, **kwargs):
